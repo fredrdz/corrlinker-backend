@@ -1,5 +1,5 @@
 // Package corrlinker provides ...
-package desqdash
+package app
 
 import "log"
 

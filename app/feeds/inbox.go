@@ -3,8 +3,8 @@ package feeds
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"fredrdz/corrlinker-backend/app/models"
 	"log"
 	"regexp"
 	"strconv"
@@ -16,16 +16,7 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-type inboxMessage struct {
-	From            string `json:"from"`
-	Subject         string `json:"subject"`
-	SentDate        string `json:"sent_date"`
-	Message         string `json:"message"`
-	MessageID       uint64 `json:"message_id"`
-	IsUnreadMessage bool   `json:"is_unread_message"`
-}
-
-var inboxMessages []inboxMessage
+var InboxMessages []models.InboxMessage
 
 func readInboxPage(ctx context.Context, cfg *config) {
 	tctx, cancel := context.WithTimeout(ctx, 2*time.Second)
@@ -58,12 +49,6 @@ func readInboxPage(ctx context.Context, cfg *config) {
 			log.Fatalf("COULD NOT READ INBOX:\n %v", err)
 		}
 	}
-
-	outputJSON, err := json.Marshal(&inboxMessages)
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println(string(outputJSON))
 }
 
 func readInbox(ctx context.Context, pageCount, pageNum int) error {
@@ -83,7 +68,7 @@ func readInbox(ctx context.Context, pageCount, pageNum int) error {
 	}
 
 	doc.Find("table tr").Has(`#ctl00_mainContentPlaceHolder_inboxGridView .MessageDataGrid`).Each(func(_ int, tr *goquery.Selection) {
-		m := inboxMessage{}
+		m := models.InboxMessage{}
 
 		from := tr.Find("th span").Text()
 		subject := tr.Find("td span").Eq(1).Text()
@@ -123,10 +108,10 @@ func readInbox(ctx context.Context, pageCount, pageNum int) error {
 		m.Message = msgMatch
 		m.MessageID = messageIDint
 		m.IsUnreadMessage = isUnreadMessageBool
-		inboxMessages = append(inboxMessages, m)
+		InboxMessages = append(InboxMessages, m)
 		// fmt.Println(message)
 	})
-	// fmt.Println(inboxMessages)
+	// fmt.Println(InboxMessages)
 
 	if pageNum == pageCount {
 		return err

@@ -4,6 +4,7 @@ package feeds
 import (
 	"context"
 	"encoding/json"
+	"fredrdz/corrlinker-backend/app"
 	"io/ioutil"
 	"log"
 	"runtime"
@@ -66,4 +67,18 @@ func Mailbox() {
 	}
 
 	readInboxPage(ctx, cfg)
+
+	/*
+		msgsJSON, err := json.Marshal(&InboxMessages)
+		if err != nil {
+			log.Println(err)
+		}
+		fmt.Println(string(msgsJSON))
+	*/
+
+	var msgsInterfaced []interface{}
+	for _, val := range InboxMessages {
+		msgsInterfaced = append(msgsInterfaced, val)
+	}
+	app.Database(msgsInterfaced)
 }
