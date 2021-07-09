@@ -8,9 +8,11 @@ import (
 	"io/ioutil"
 	"log"
 	"runtime"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/x/bsonx"
 )
 
 type config struct {
@@ -65,11 +67,33 @@ func Database(data []interface{}) {
 	fmt.Println("Connected to MongoDB!")
 
 	collection := client.Database("corrlinker").Collection("messages")
-	entries := data
-	opts := options.InsertMany().SetOrdered(false)
-	insertManyResult, err := collection.InsertMany(context.TODO(), entries, opts)
+	indexOpts := options.CreateIndexes().SetMaxTime(10 * time.Second)
+	indexNameResult, err := collection.Indexes().CreateMany(
+		context.Background(),
+		[]mongo.IndexModel{
+			{
+				Keys:    bsonx.Doc{{Key: "send_date", Value: bsonx.String("text")}},
+				Options: options.Index().SetUnique(true),
+			},
+			{
+				Keys:    bsonx.Doc{{Key: "message_id", Value: bsonx.Int32(-1)}},
+				Options: options.Index().SetUnique(true),
+			},
+		},
+		indexOpts,
+	)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+	} else {
+		fmt.Println("Collection indexes: ", indexNameResult)
 	}
-	fmt.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
+
+	entries := data
+	insertOpts := options.InsertMany().SetOrdered(false)
+	insertManyResult, err := collection.InsertMany(context.TODO(), entries, insertOpts)
+	if err != nil {
+		log.Println(err)
+	} else {
+		fmt.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
+	}
 }
