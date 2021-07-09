@@ -41,7 +41,6 @@ func Mailbox() {
 		chromedp.NoDefaultBrowserCheck,
 		chromedp.Flag("headless", false),
 		chromedp.Flag("disable-gpu", false),
-		// chromedp.UserDataDir(`/Users/lobotech/Library/Application Support/Google/Chrome/Profile 1`),
 		chromedp.Flag("use-mock-keychain", true),
 		chromedp.Flag("no-first-run", true),
 		chromedp.Flag("no-sandbox", true),
@@ -49,13 +48,11 @@ func Mailbox() {
 		chromedp.Flag("enable-automation", true),
 		chromedp.Flag("restore-on-startup", false),
 		chromedp.Flag("disable-extensions", true),
-		// chromedp.Flag("blink-settings", "imagesEnabled=false"),
 		chromedp.Flag("disable-web-security", true),
 		chromedp.Flag("hide-scrollbars", true),
 		chromedp.Flag("mute-audio", true),
 		chromedp.UserAgent(randomUserAgent()),
 		chromedp.WindowSize(1024, 768),
-		// chromedp.ExecPath(`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`),
 	)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)

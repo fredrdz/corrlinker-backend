@@ -31,34 +31,14 @@ func readInboxPage(ctx context.Context, cfg *config) {
 	tctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 
-	// var pageCountstr string
 	var pages []*cdp.Node
 	if err := chromedp.Run(ctx, chromedp.Tasks{
-		// chromedp.Emulate(device.IPadProlandscape),
 		chromedp.Navigate(cfg.URL + "/Inbox.aspx"),
 		chromedp.WaitVisible(`#ctl00_mainContentPlaceHolder_MessagesViewPanel`, chromedp.ByID),
 		chromedp.SetValue(`#ctl00_mainContentPlaceHolder_startDateTextBox`, "1/1/2021", chromedp.ByID),
 		chromedp.SetValue(`#ctl00_mainContentPlaceHolder_endDateTextBox`, "12/31/2021", chromedp.ByID),
 		chromedp.Click(`#ctl00_mainContentPlaceHolder_updateButton`, chromedp.ByID),
 		chromedp.Sleep(1 * time.Second),
-		// chromedp.ActionFunc(func(c context.Context) error {
-		// log.Println("Found rows", len(pages))
-		// loop through all the td nodes
-		// const sel = `/html/body/table/tbody/tr[%d]/td[%d]`
-		// var firstCol, secondCol string
-		// for i := 1; i <= len(rows); i++ {
-		//     if err := chromedp.Run(ctx,
-		//         chromedp.Text(fmt.Sprintf(sel, i, 1), &firstCol),
-		//         chromedp.Text(fmt.Sprintf(sel, i, 2), &secondCol),
-		//     ); err != nil {
-		//         log.Fatal(err)
-		//     }
-		//     fmt.Printf("got first column value = %s, from row %d\n", firstCol, i)
-		//     fmt.Printf("got second column value = %s, from row %d\n", secondCol, i)
-		// }
-		// return nil
-		// }),
-		// chromedp.Text(`#ctl00_mainContentPlaceHolder_inboxGridView tbody tr.Pager td table tbody tr td:nth-child(%v) a`, &pageCountstr, chromedp.ByID),
 	}); err != nil && err != context.Canceled && err != context.DeadlineExceeded {
 		log.Fatal(err)
 	}
@@ -71,7 +51,7 @@ func readInboxPage(ctx context.Context, cfg *config) {
 	} else {
 		pageCount = len(pages)
 	}
-	// pageCount, _ := strconv.Atoi(pageCountstr)
+
 	for pageNum := 1; pageNum <= pageCount; pageNum++ {
 		err := readInbox(ctx, pageCount, pageNum)
 		if err != nil && err != context.Canceled && err != context.DeadlineExceeded {
