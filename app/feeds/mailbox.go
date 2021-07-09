@@ -1,5 +1,5 @@
 // Package corrlinker provides ...
-package corrlinker
+package feeds
 
 import (
 	"context"

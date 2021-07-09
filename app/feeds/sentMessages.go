@@ -1,5 +1,5 @@
-// Package corrlinker provides ...
-package corrlinker
+// Package feeds provides ...
+package feeds
 
 import "log"
 

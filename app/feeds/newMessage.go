@@ -1,8 +1,8 @@
 // Package corrlinker provides ...
-package corrlinker
+package feeds
 
 import "log"
 
-func broadcast () {
+func newMessage() {
 	log.Println("meh")
 }

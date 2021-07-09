@@ -1,9 +1,7 @@
 package main
 
-import (
-	corrlinker "corrlinker-backend/corrlinker/corrlinks"
-)
+import "fredrdz/corrlinker-backend/app/feeds"
 
 func main() {
-	corrlinker.Mailbox()
+	feeds.Mailbox()
 }

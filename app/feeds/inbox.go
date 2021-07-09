@@ -1,5 +1,5 @@
 // Package corrlinker provides ...
-package corrlinker
+package feeds
 
 import (
 	"context"
@@ -28,6 +28,9 @@ type inboxMessage struct {
 var inboxMessages []inboxMessage
 
 func readInboxPage(ctx context.Context, cfg *config) {
+	tctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+
 	// var pageCountstr string
 	var pages []*cdp.Node
 	if err := chromedp.Run(ctx, chromedp.Tasks{
@@ -38,7 +41,6 @@ func readInboxPage(ctx context.Context, cfg *config) {
 		chromedp.SetValue(`#ctl00_mainContentPlaceHolder_endDateTextBox`, "12/31/2021", chromedp.ByID),
 		chromedp.Click(`#ctl00_mainContentPlaceHolder_updateButton`, chromedp.ByID),
 		chromedp.Sleep(1 * time.Second),
-		chromedp.Nodes(`#ctl00_mainContentPlaceHolder_inboxGridView tbody tr.Pager td table tbody tr td`, &pages, chromedp.ByQueryAll),
 		// chromedp.ActionFunc(func(c context.Context) error {
 		// log.Println("Found rows", len(pages))
 		// loop through all the td nodes
@@ -60,8 +62,16 @@ func readInboxPage(ctx context.Context, cfg *config) {
 	}); err != nil && err != context.Canceled && err != context.DeadlineExceeded {
 		log.Fatal(err)
 	}
+
+	var pageCount int
+	if err := chromedp.Run(tctx, chromedp.Tasks{
+		chromedp.Nodes(`#ctl00_mainContentPlaceHolder_inboxGridView tbody tr.Pager td table tbody tr td`, &pages, chromedp.ByQueryAll),
+	}); err != nil {
+		pageCount = 1
+	} else {
+		pageCount = len(pages)
+	}
 	// pageCount, _ := strconv.Atoi(pageCountstr)
-	pageCount := len(pages)
 	for pageNum := 1; pageNum <= pageCount; pageNum++ {
 		err := readInbox(ctx, pageCount, pageNum)
 		if err != nil && err != context.Canceled && err != context.DeadlineExceeded {

@@ -1,8 +1,8 @@
 // Package corrlinker provides ...
-package corrlinker
+package desqdash
 
 import "log"
 
-func newMessage() {
+func broadcast() {
 	log.Println("meh")
 }
